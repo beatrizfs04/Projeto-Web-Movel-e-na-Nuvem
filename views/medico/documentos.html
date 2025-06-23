@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MedRecover</title>
+        <link rel="stylesheet" href="/styles">
+        <link rel="stylesheet" href="/styles-font">
+    </head>
+    <body onload='CheckSession("medico")'> 
+        <nav class="sidebar">
+            <ul class="nav-list">
+                <li id="alert">
+                    <a href="/medico"><span>Utentes</span></a>
+                </li>
+                <li id="alert">
+                    <a href="/medico/dados"><span>Estatisticas</span></a>
+                </li>
+                <li class="active" id="home">
+                    <a href="/medico/documentos" aria-current="page"><span>Documentos</span></a>
+                </li>
+            </ul>
+        </nav>
+        <div class="content">
+            <h1>Documentos</h1>
+            <div>
+                <div class="lista">A carregar documentos...</div>
+            </div>
+            
+        </div>        
+        <script>
+            var doctorId;
+            (async () => {
+                const response = await fetch("/api/auth/isAuthorized");
+                const gotUser = await response.json();
+                doctorId = (gotUser.user ? gotUser.user.id : null)
+                const container = document.querySelector('.lista');
+                try {
+                    const resposta = await fetch(`/api/docs/doctor/documentos?doctorId=${doctorId}`);
+                    if (!resposta.ok) {
+                        throw new Error(`Erro HTTP: ${resposta.status}`);
+                    }
+
+                    const documentos = await resposta.json();
+                    container.innerHTML = '';
+
+                    if (documentos.length === 0) {
+                        container.innerHTML = 'Nenhum documento encontrado.';
+                        return;
+                    }
+
+                    documentos.forEach(documento => {
+                        const divDocumento = document.createElement('lista');
+                        divDocumento.className = 'div';
+                        divDocumento.innerHTML = `
+                        <div class="documento">
+                            <div class="info">
+                                <strong>ID:</strong> ${documento.id}<br>
+                                <strong>Nome:</strong> ${documento.name}<br>
+                                <strong>Descarregar:</strong> <a href='${documento.path}'><\a><br>
+                            </div>
+                        </div>
+                        `;
+                        container.appendChild(divDocumento);
+                    });
+
+                } catch (erro) {
+                    container.innerHTML = `Erro ao carregar documentos: ${erro.message}`;
+                }
+            })()
+        </script>
+        <script src="/script/session"></script>
+    </body>
+</html>

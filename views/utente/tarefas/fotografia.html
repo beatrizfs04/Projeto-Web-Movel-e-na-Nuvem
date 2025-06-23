@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>MedRecover</title>
+      <link rel="stylesheet" href="/styles">
+      <link rel="stylesheet" href="/styles-font">
+  </head>
+  <body onload='CheckSession("utente")'> 
+      <div class="foto">
+          <h2>Tire uma fotografia na posição da imagem.</h2>
+          <div class="linha-imagens">
+              <img id="exercicio" width="480" height="360" src="/exercise" alt="Exemplo">
+              <video id="video" width="480" height="360" autoplay></video>
+              <img id="preview" width="480" height="360" alt="Prévia da foto">
+          </div>
+          <div class="linha-botoes">
+              <button id="tirar">Tirar Foto</button>
+              <button id="apagar">Apagar Foto</button>
+              <input type="hidden" name="imagem" id="imagemInput">
+              <button id="enviarFoto">Enviar Foto</button>
+          </div>
+          <canvas id="canvas" width="480" height="360" style="display:none;"></canvas>
+      </div>
+    </body>
+      <script>
+        var photoId;
+        var patientId;
+        document.addEventListener('DOMContentLoaded', async function() {
+          const urlParams = new URLSearchParams(window.location.search);
+          photoId = urlParams.get('photoId');
+          const authUser = await fetch("/api/auth/isAuthorized");
+          const gotUser = await authUser.json();
+          patientId = (gotUser.user ? gotUser.user.id : null)
+          const video = document.getElementById('video');
+          const canvas = document.getElementById('canvas');
+          const preview = document.getElementById('preview');
+          const imagemInput = document.getElementById('imagemInput');
+          let imagemBase64 = "";
+      
+          navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+              video.srcObject = stream;
+            })
+            .catch(err => alert("Erro ao acessar câmera: " + err));
+      
+          document.getElementById('tirar').addEventListener('click', () => {
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            imagemBase64 = canvas.toDataURL('image/png');
+            preview.src = imagemBase64;
+            preview.style.display = 'block';
+          });
+
+          document.getElementById('apagar').addEventListener('click', () => {
+              imagemBase64 = "";
+              preview.src = "";
+              preview.style.display = 'none';
+          });
+      
+          document.getElementById('enviarFoto').addEventListener('click', async (e) => {
+            if (!imagemBase64) {
+              e.preventDefault();
+              alert("Você precisa capturar a foto antes de salvar.");
+              return;
+            }
+            imagemInput.value = imagemBase64;
+            try {
+              const response = await fetch('/api/tasks/photo/submit', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({patient: patientId, path: imagemBase64, photoId: photoId})
+              })
+              const result = await response.json();
+              if (response.ok) {                      
+                alert("Imagem Guardada com Sucesso!");
+                window.location.href = '/utente';
+              } else {
+                console.error(result.error);
+              }
+            } catch(error) {
+              console.error(error.message);
+            }
+          });
+        });
+    </script>
+  
+  <script src="/script/session"></script>
+</html>

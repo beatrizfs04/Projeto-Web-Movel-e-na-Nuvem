@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MedRecover</title>
+        <link rel="stylesheet" href="/styles">
+        <link rel="stylesheet" href="/styles-font">
+    </head>
+    <body onload='CheckSession("atendente")'> 
+        <nav class="sidebar">
+            <ul class="nav-list">
+                <li id="alert">
+                    <a href="/atendente"><span>Utentes</span></a>
+                </li>
+                <li class="active" id="home">
+                    <a href="/atendente/medicos" aria-current="page"><span>Médicos</span></a>
+                </li>
+                <li id="alert">
+                    <a href="/atendente/novo_user"><span>Inserir Perfil</span></a>
+                </li>
+            </ul>
+        </nav>
+        <div class="content">
+            <h1>Médicos</h1>
+            <div>
+                <div class="lista">A carregar médicos...</div>
+            </div>
+        </div>
+        <script>
+            async function eliminarMedico(id, botao) {
+                if (!confirm("Tem certeza que deseja eliminar este médico?")) return;
+
+                try {
+                    const resposta = await fetch(`/api/users_info/attendant/doctors?id=${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (!resposta.ok) {
+                        throw new Error(`Erro ao eliminar médico: ${resposta.statusText}`);
+                    }
+
+                    const divMedico = botao.closest('.doctor');
+                    divMedico.remove();
+                } catch (erro) {
+                    alert(`Erro ao eliminar médico: ${erro.message}`);
+                }
+            }
+
+            (async () => {
+                const container = document.querySelector('.lista');
+                try {
+                    const resposta = await fetch('/api/users_info/attendant/doctors');
+                    if (!resposta.ok) {
+                        throw new Error(`Erro HTTP: ${resposta.status}`);
+                    }
+
+                    const medicos = await resposta.json();
+                    container.innerHTML = '';
+
+                    if (medicos.length === 0) {
+                        container.innerHTML = 'Nenhum médico encontrado.';
+                        return;
+                    }
+
+                    medicos.forEach(medico => {
+                        const divMedico = document.createElement('lista');
+                        divMedico.className = 'div';
+                        divMedico.innerHTML = `
+                        <div class="doctor">
+                            <div class="info">
+                                <strong>ID:</strong> ${medico.id}<br>
+                                <strong>Nome:</strong> ${medico.name}<br>
+                                <strong>Email:</strong> ${medico.email || 'N/A'}<br>
+                                <strong>Contacto:</strong> ${medico.contact || 'N/A'}
+                            </div>
+                        </div>
+                        `;
+                        container.appendChild(divMedico);
+                    });
+
+                } catch (erro) {
+                    container.innerHTML = `Erro ao carregar médicos: ${erro.message}`;
+                }
+            })()
+          </script>
+    </body>
+    <script src="/script/session"></script>
+</html>

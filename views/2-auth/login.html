@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MedRecover - Login</title>
+        <link rel="stylesheet" href="/styles">
+        <link rel="stylesheet" href="/styles-login">
+        <style>
+            .content{
+                margin: 0px !important;
+            }
+            #error-message {
+                color: red;
+                margin-bottom: 15px;
+                display: none;
+            }
+        </style>
+    </head>
+    <body onload="CheckLoginSession()"> 
+        <div class="content">
+            <form id="msform">
+                <h1 style="font-size: 40px;">Login</h1>
+                <div id="error-message"></div>
+                <fieldset>
+                    Insira o seu email: <br>
+                    <input type="email" id="email" class="text" name="email" required/> <br>
+                    Insira a sua password: <br>
+                    <input type="password" id="password" class="text" name="password" required/> <br>
+                    
+                    Tipo de utilizador: <br>
+                    <select id="userType" class="text" name="userType" required>
+                        <option value="">Selecione...</option>
+                        <option value="doctor">Médico</option>
+                        <option value="attendant">Atendente</option>
+                    </select> <br>
+                    
+                    <input type="button" id="submitBtn" class="submit action-button" value="Login"/>
+                </fieldset>
+                
+                <p style="margin-top: 20px;">
+                    É paciente? <a href="#" id="patientLoginLink">Aceda por link de convite</a>
+                </p>
+            </form>
+        </div>
+        <script src="/script/session"></script>
+        <script>
+            async function tryPatientLogin() {
+                const errorElement = document.getElementById('error-message');
+                errorElement.style.display = 'none';
+                const params = new URLSearchParams(window.location.search);
+                const id = params.get("id");
+                const token = params.get("token");
+                console.log(id, token);
+                if (id && token) {
+                    if (id.length !== 9 || token.length !== 12) return;
+                    try {
+                        const response = await fetch('/api/auth/login/patient', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                id,
+                                token
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            window.location.href = result.redirect;
+                        } else {
+                            errorElement.textContent = result.error || 'Erro no login';
+                            errorElement.style.display = 'block';
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        errorElement.textContent = 'Erro ao conectar com o servidor';
+                        errorElement.style.display = 'block';
+                    }
+                }
+            }
+            tryPatientLogin();
+
+            document.getElementById('submitBtn').addEventListener('click', async function(e) {
+                e.preventDefault();
+                const errorElement = document.getElementById('error-message');
+                errorElement.style.display = 'none';
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const userType = document.getElementById('userType').value;
+                
+                if (!email || !password || !userType) {
+                    errorElement.textContent = 'Por favor preencha todos os campos';
+                    errorElement.style.display = 'block';
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/auth/login/staff', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            email,
+                            password,
+                            userType
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        window.location.href = data.redirect;
+                    } else {
+                        errorElement.textContent = data.error || 'Erro no login';
+                        errorElement.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    errorElement.textContent = 'Erro ao conectar com o servidor';
+                    errorElement.style.display = 'block';
+                }
+            });
+
+            document.getElementById('patientLoginLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('error-message').textContent = 
+                    "Os pacientes devem aceder através do link de convite enviado por email";
+                document.getElementById('error-message').style.display = 'block';
+            });
+        </script>
+    </body>
+</html>

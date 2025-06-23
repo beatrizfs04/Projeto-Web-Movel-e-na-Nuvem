@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedRecover</title>
+    <link rel="stylesheet" href="/styles-form">
+  </head>
+  <body onload='CheckSession("utente")'> 
+    <form id="msform">
+      <ul id="progressbar" class="progressbar"></ul>
+      <div id="fieldsets-container"></div>
+      <button type="button" id="submit-btn" onclick="handleSubmit()">Submeter Formulário</button>
+    </form>
+
+    <script>
+      var formId;
+      var patientId;
+      document.addEventListener('DOMContentLoaded', async function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        formId = urlParams.get('formId');
+        const response = await fetch("/api/auth/isAuthorized");
+        const gotUser = await response.json();
+        patientId = (gotUser.user ? gotUser.user.id : null)
+
+        if (!formId) {
+          alert("ID do formulário não especificado!");
+          return;
+        }
+
+        fetchQuestions(formId);
+      });
+
+      async function fetchQuestions(formId) {
+          try {
+              const response = await fetch(`/api/tasks/tarefas/form?formId=${formId}`, {
+                  credentials: 'include' 
+              });
+              
+              if (!response.ok) {
+                  throw new Error(`Erro: ${response.status}`);
+              }
+              
+              const questions = await response.json();
+              renderForm(questions, formId);
+              
+          } catch (error) {
+              console.error('Erro:', error);
+              showError(error.message);
+          }
+      }
+
+      function renderForm(questions, formId) {
+          const container = document.getElementById('fieldsets-container');const progressbar = document.getElementById('progressbar');
+        
+          container.innerHTML = '';
+          progressbar.innerHTML = '';
+
+          questions.forEach((question, index) => {
+              const li = document.createElement('li');
+              li.textContent = `Questão ${index + 1}`;
+              if (index === 0) li.classList.add('active');
+              progressbar.appendChild(li);
+          });
+          
+          const fieldset = document.createElement('div');
+          fieldset.className = 'fieldset';
+          
+          questions.forEach((question, index) => {
+              const questionDiv = document.createElement('div');
+              questionDiv.className = 'question';
+              questionDiv.dataset.questionId = question.id;
+              
+              const title = document.createElement('h3');
+              title.textContent = question.enunciado;
+              questionDiv.appendChild(title);
+              
+              const select = document.createElement('select');
+              select.name = `q_${question.id}`;
+              select.required = true;
+              
+              const defaultOption = document.createElement('option');
+              defaultOption.value = '';
+              defaultOption.textContent = '-- Selecione uma opção --';
+              defaultOption.selected = true;
+              defaultOption.disabled = true;
+              select.appendChild(defaultOption);
+              
+              question.opcoes.forEach(opcao => {
+                  const option = document.createElement('option');
+                  option.value = opcao;
+                  option.textContent = opcao;
+                  select.appendChild(option);
+              });
+              
+              questionDiv.appendChild(select);
+              container.appendChild(questionDiv);
+              
+              select.addEventListener('change', function() {
+              if (this.value !== '') {
+                  const li = progressbar.children[index];
+                  li.classList.add('completed');
+                  li.classList.remove('active');
+                  
+                  if (index < progressbar.children.length - 1) {
+                  progressbar.children[index + 1].classList.add('active');
+                  }
+              }
+              });
+
+              const errorSpan = document.createElement('span');
+              errorSpan.className = 'error-message';
+              errorSpan.id = `error_q_${question.id}`;
+              
+              questionDiv.appendChild(select);
+              questionDiv.appendChild(errorSpan);
+              fieldset.appendChild(questionDiv);
+          });
+        container.appendChild(fieldset);
+      }
+
+      function handleSubmit() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const formId = urlParams.get('formId');
+        
+        const questionElements = document.querySelectorAll('.question');
+        const questions = Array.from(questionElements).map(q => {
+          const select = q.querySelector('select');
+          return {
+            id: q.dataset.questionId,
+            element: select
+          };
+        });
+        
+        submitForm(questions);
+      }
+
+      async function submitForm(questions) {
+        const allFieldsValid = validateAllFields(questions);
+        if (!allFieldsValid) return;
+        
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'A Enviar...';
+        
+        const answers = questions.map(question => {
+          return {
+            patient: patientId,
+            question: question.id,
+            answer: question.element.value
+          };
+        });
+        
+        try {          
+          const response = await fetch('/api/tasks/answer/submit', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ answers, taskId: formId })
+          });
+          
+          const contentType = response.headers.get('content-type');
+          if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            throw new Error(`Resposta inesperada: ${text.substring(0, 100)}...`);
+          }
+          
+          const result = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(result.message || 'Erro ao submeter formulário');
+          }
+          
+          alert("Formulário submetido com sucesso!");
+          window.location.href = '/utente';
+          
+        } catch (error) {
+          console.error('Erro completo:', error);
+          alert(error.message || "Erro ao submeter o formulário. Por favor, tente novamente.");
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submeter Formulário';
+        }
+      }
+
+      function validateAllFields(questions) {
+        let allValid = true;
+        
+        questions.forEach(question => {
+          const select = question.element;
+          const errorSpan = document.querySelector(`#error_q_${question.id}`);
+          
+          if (!select || select.value === "") {
+            select.style.border = '1px solid red';
+            if (errorSpan) {
+              errorSpan.textContent = "Por favor, selecione uma opção";
+            }
+            allValid = false;
+          } else {
+            select.style.border = '1px solid #ddd';
+            if (errorSpan) {
+              errorSpan.textContent = "";
+            }
+          }
+        });
+        
+        if (!allValid) {
+          alert("Por favor, responda todas as questões antes de submeter.");
+        }
+        
+        return allValid;
+      }
+    </script>
+  </body>
+  <script src="/script/session"></script>
+</html>

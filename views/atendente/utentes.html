@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MedRecover</title>
+        <link rel="stylesheet" href="/styles">
+        <link rel="stylesheet" href="/styles-font">
+    </head>
+    <body onload='CheckSession("atendente")'> 
+        <nav class="sidebar">
+            <ul class="nav-list">
+                <li class="active" id="home">
+                    <a href="/atendente" aria-current="page"><span>Utentes</span></a>
+                </li>
+                <li id="alert">
+                    <a href="/atendente/medicos"><span>Médicos</span></a>
+                </li>
+                <li id="alert">
+                    <a href="/atendente/novo_user"><span>Inserir Perfil</span></a>
+                </li>
+                <li id="alert">
+                    <a onclick="LogoutSession()"><span>Logout</span></a>
+                </li>
+            </ul>
+        </nav>
+        <div class="content">
+            <h1>Utentes</h1>
+            <div>
+                <div class="lista">A carregar utentes...</div>
+            </div>
+            
+        </div>        
+        <script>
+            async function eliminarUtente(id, botao) {
+                if (!confirm("Tem certeza que deseja eliminar este utente?")) return;
+
+                try {
+                    const resposta = await fetch(`/api/users_info/attendant/patients?id=${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (!resposta.ok) {
+                        throw new Error(`Erro ao eliminar utente: ${resposta.statusText}`);
+                    }
+
+                    const divUtente = botao.closest('.patient');
+                    divUtente.remove();
+                } catch (erro) {
+                    alert(`Erro ao eliminar utente: ${erro.message}`);
+                }
+            }
+
+            (async () => {
+                const container = document.querySelector('.lista');
+                try {
+                    const resposta = await fetch('/api/users_info/attendant/patients');
+                    if (!resposta.ok) {
+                        throw new Error(`Erro HTTP: ${resposta.status}`);
+                    }
+
+                    const utentes = await resposta.json();
+                    container.innerHTML = '';
+
+                    if (utentes.length === 0) {
+                        container.innerHTML = 'Nenhum utente encontrado.';
+                        return;
+                    }
+
+                    utentes.forEach(utente => {
+                        const divUtente = document.createElement('lista');
+                        divUtente.className = 'div';
+                        divUtente.innerHTML = `
+                        <div class="patient">
+                            <div class="info">
+                                <strong>ID:</strong> ${utente.id}<br>
+                                <strong>Nome:</strong> ${utente.name}<br>
+                                <strong>Email:</strong> ${utente.email || 'N/A'}<br>
+                                <strong>Contacto:</strong> ${utente.contact || 'N/A'}<br>
+                                <strong>Sexo:</strong> ${utente.sex}<br>
+                                <strong>Idade:</strong> ${utente.age || 'N/A'}<br>
+                                <strong>Etiologia:</strong> ${utente.etiology || 'N/A'}<br>
+                                <strong>Profissão:</strong> ${utente.profession || 'N/A'}<br>
+                                <strong>ID Médico:</strong> ${utente.doctor || 'N/A'}<br>
+                                <strong>ID Processo:</strong> ${(utente.process).toString() || 'N/A'}<br>
+                                <strong>Data da Cirurgia:</strong> ${utente.surgery ? new Date(utente.surgery).toISOString().split('T')[0] : 'N/A'}
+                            </div>
+                        </div>
+                        `;
+                        container.appendChild(divUtente);
+                    });
+
+                } catch (erro) {
+                    container.innerHTML = `Erro ao carregar utentes: ${erro.message}`;
+                }
+            })()
+        </script>
+        <script src="/script/session"></script>
+    </body>
+</html>

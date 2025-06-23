@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MedRecover</title>
+        <link rel="stylesheet" href="/styles">
+        <link rel="stylesheet" href="/styles-font">
+    </head>
+    <body onload='CheckSession("utente")'> 
+        <nav class="sidebar">
+            <ul class="nav-list">
+                <li class="active" id="home">
+                    <a href="/utente" aria-current="page"><span>Tarefas</span></a>
+                </li>
+                <li id="alert">
+                    <a href="/utente/tutoriais"><span>Tutoriais</span></a>
+                </li>
+                <li id="alert">
+                    <a onclick="LogoutSession()"><span>Logout</span></a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="content">
+            <h1>As Minhas Tarefas</h1>
+
+            <div id="task-list" class="task-list">
+                <!-- tarefas carregadas aqui -->
+            </div>
+        </div>
+        </body>
+
+        <script>
+            function abrirTarefa(id, type) {
+                if (type === 'form') {
+                    window.location.href = `/utente/formulario?formId=${id}`;
+                } else if (type === 'photo') {
+                    window.location.href = `/utente/fotografia?photoId=${id}`;
+                }
+            }
+
+            (async () => {
+                const container = document.getElementById('task-list');
+                container.innerHTML = '<p>Carregando tarefas...</p>';
+                
+                try {
+                    let url = `/api/tasks/tarefas?data=${Date.now()}`;
+                    const resposta = await fetch(url, {
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (!resposta.ok) {
+                        throw new Error(`Erro HTTP: ${resposta.status}`);
+                    }
+                    
+                    const contentType = resposta.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const text = await resposta.text();
+                        throw new Error('Resposta não é JSON: ' + text.substring(0, 100));
+                    }
+                    
+                    const tarefas = await resposta.json();
+                    container.innerHTML = '';
+                    
+                    if (tarefas.length === 0) {
+                        container.innerHTML = '<p class="error-message">Nenhuma tarefa encontrada.</p>';
+                        return;
+                    }
+                    
+                    tarefas.forEach(tarefa => {
+                        const divTarefa = document.createElement('div');
+                        divTarefa.className = 'task-item';
+                        divTarefa.onclick = () => abrirTarefa(tarefa.id, tarefa.type);
+                        
+                        divTarefa.innerHTML = `
+                            <div class="div">
+                                <span class="task-title">${tarefa.title || 'Sem título'}</span>
+                                <span class="task-type ${tarefa.type}-type">
+                                    ${tarefa.type === 'form' ? 'Formulário' : 'Fotografia'}
+                                </span>
+                            </div>
+                        `;
+                        
+                        container.appendChild(divTarefa);
+                    });
+                    
+                } catch (erro) {
+                    console.error('Erro ao carregar tarefas:', erro);
+                    container.innerHTML = `
+                        <div class="error-message">
+                            <p>Erro ao carregar tarefas: ${erro.message}</p>
+                            <button onclick="carregarTarefas()">Tentar novamente</button>
+                        </div>
+                    `;
+                }
+            })()
+        </script>
+    <script src="/script/session"></script>
+</html>

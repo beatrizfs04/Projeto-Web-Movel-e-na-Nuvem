@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MedRecover</title>
+        <link rel="stylesheet" href="/styles">
+    </head>
+    <body onload='CheckSession("utente")'> 
+        <nav class="sidebar">
+            <ul class="nav-list">
+                <li id="home">
+                    <a href="/utente" aria-current="page"><span>Tarefas</span></a>
+                </li>
+                <li class="active" id="alert">
+                    <a href="/utente/tutoriais"><span>Tutoriais</span></a>
+                </li>
+            </ul>
+        </nav>
+        <div class="contentvideo" id="contentvideo">
+            <!-- vídeos inseridos aqui -->
+        </div>
+    </body>
+    <script src="/script/session"></script>
+    <script>
+        var patientId;
+        function displayVideos(videos) {
+            const container = document.getElementById('contentvideo');
+            container.innerHTML = '';
+            videos.forEach(video => {
+                const videoElement = document.createElement('div');
+                videoElement.className = 'video';
+                videoElement.innerHTML = `
+                    <iframe 
+                        src="${video.content}" 
+                        title="${video.title}" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        referrerpolicy="strict-origin-when-cross-origin" 
+                        allowfullscreen>
+                    </iframe>
+                `;
+                
+                container.appendChild(videoElement);
+            });
+        }
+        document.addEventListener('DOMContentLoaded', async function() {
+            const authUser = await fetch("/api/auth/isAuthorized");
+            const gotUser = await authUser.json();
+            patientId = (gotUser.user ? gotUser.user.id : null)
+            console.log(patientId);
+            try {
+                const response = await fetch(`/api/tasks/tarefas/tutorial?patientId=${patientId}`, {
+                    method: 'GET', 
+                    credentials: "include",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar vídeos');
+                }
+                
+                const videos = await response.json();
+                console.log(videos);
+                displayVideos(videos);
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        });
+    </script>
+</html>

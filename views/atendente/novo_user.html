@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MedRecover</title>
+        <link rel="stylesheet" href="/styles">
+        <link rel="stylesheet" href="/styles-font">
+    </head>
+    <body onload='CheckSession("atendente")'> 
+        <nav class="sidebar">
+            <ul class="nav-list">
+                <li id="alert">
+                    <a href="/atendente"><span>Utentes</span></a>
+                </li>
+                <li id="alert">
+                    <a href="/atendente/medicos"><span>Médicos</span></a>
+                </li>
+                <li class="active" id="home">
+                    <a href="/atendente/novo_user" aria-current="page"><span>Inserir Perfil</span></a>
+                </li>
+            </ul>
+        </nav>
+        <div class="content">
+            <button class="open-modal" id="openMedicoModal">Criar Novo Médico</button>
+            <button class="open-modal" id="openUtenteModal">Criar Novo Utente</button>
+            
+            <div id="medicoModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" id="closeMedicoModal">&times;</span>
+                    <h2>Criar Novo Médico</h2>
+                    <form id="formMedico">
+                        <input type="number" name="id" placeholder="ID do médico" required>
+                        <input type="text" name="name" placeholder="Nome" required>
+                        <input type="email" name="email" placeholder="Email" required>
+                        <input type="text" name="password" placeholder="Password" required>
+                        <input type="text" name="contact" placeholder="Contacto" required>
+                        <div class="modal-buttons">
+                            <button type="submit">Criar Médico</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div id="utenteModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" id="closeUtenteModal">&times;</span>
+                    <h2>Criar Novo Utente</h2>
+                    <form id="formUtente">
+                        <input type="number" name="id" placeholder="ID do Utente" required>
+                        <input type="text" name="name" placeholder="Nome" required>
+                        <input type="email" name="email" placeholder="Email" required>
+                        <input type="text" name="contact" placeholder="Contacto" required>
+                        <input type="text" name="sex" placeholder="Sexo" required>
+                        <input type="text" name="age" placeholder="Idade" required>
+                        <input type="text" name="profession" placeholder="Profissão" required>
+                        <input type="text" name="etiology" placeholder="Etiologia" required>
+                        <input type="text" name="doctor" placeholder="ID Médico" required>
+                        <input type="text" name="process" placeholder="ID Processo" required>
+                        <input type="date" name="surgery" placeholder="Data da Cirurgia" required>
+                        <div class="modal-buttons">
+                            <button type="submit">Criar Utente</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.getElementById('openMedicoModal').addEventListener('click', function() {
+                document.getElementById('medicoModal').style.display = 'block';
+            });
+            
+            document.getElementById('openUtenteModal').addEventListener('click', function() {
+                document.getElementById('utenteModal').style.display = 'block';
+            });
+            
+            document.getElementById('closeMedicoModal').addEventListener('click', function() {
+                document.getElementById('medicoModal').style.display = 'none';
+            });
+            
+            document.getElementById('closeUtenteModal').addEventListener('click', function() {
+                document.getElementById('utenteModal').style.display = 'none';
+            });
+            
+            window.addEventListener('click', function(event) {
+                if (event.target.className === 'modal') {
+                    event.target.style.display = 'none';
+                }
+            });
+
+            document.getElementById('formMedico').addEventListener('submit', async function(e) {
+                e.preventDefault();
+            
+                const form = e.target;
+                const requestData = {
+                    id: form.id.value,
+                    name: form.name.value,
+                    email: form.email.value,
+                    password: form.password.value,
+                    contact: form.contact.value
+                };
+
+                try {
+                    const response = await fetch('/api/users_info/attendant/doctor', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestData)
+                    });
+            
+                    const result = await response.json();
+            
+                    if (response.ok) {
+                        alert('✅ Médico criado com sucesso!');
+                        form.reset();
+                        document.getElementById('medicoModal').style.display = 'none';
+                    } else {
+                        alert(`Erro: ${result.error}`);
+                    }
+                } catch (err) {
+                    alert(`Erro ao criar médico: ${err.message}`);
+                }
+            });
+
+            document.getElementById('formUtente').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const form = e.target;
+                const requestData = {
+                    patient: form.id.value, 
+                    name: form.name.value,
+                    email: form.email.value,
+                    contact: form.contact.value,
+                    sex: form.sex.value,
+                    age: form.age.value,
+                    profession: form.profession.value,
+                    etiology: form.etiology.value,
+                    doctor: form.doctor.value,
+                    process: form.process.value,
+                    surgery: form.surgery.value
+                };
+
+                try {
+                    const response = await fetch('/api/users_info/attendant/patient', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestData)
+                    });
+
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        alert('✅ Utente criado com sucesso!');
+                        form.reset();
+                        document.getElementById('utenteModal').style.display = 'none';
+                    } else {
+                        alert(`Erro: ${result.error || 'Erro desconhecido'}`);
+                    }
+                } catch (err) {
+                    alert(`Erro ao criar utente: ${err.message}`);
+                    console.error('Error:', err);
+                }
+            });
+        </script>
+    </body>
+    <script src="/script/session"></script>
+</html>

@@ -1,0 +1,189 @@
+* {margin: 0; padding: 0;}
+
+:root{
+	--bg: rgb(107, 208, 166);
+	--a-bg: rgb(14, 59, 40);
+}
+
+html {
+	height: 100%;
+}
+
+body {
+	font-family: system-ui;
+	background-color: white;
+}
+
+#msform {
+	width: 100%;
+	max-width: 900px;
+	margin: 10% auto !important; 
+	text-align: center;
+	position: relative;
+	height: 400px; 
+}
+
+#msform fieldset {
+	background: var(--bg);
+	border: 0 none;
+	border-radius: 13px;
+	padding: 20px 30px;
+	box-sizing: border-box;
+	width: 80%;
+	margin: 0 10%;
+  
+	position: absolute;  
+	top: 70px;
+	left: 0;
+}
+
+.text{
+	padding: 15px;
+	border: 1px solid var(--a-bg);
+	border-radius: 13px;
+	width: 60%;
+	box-sizing: border-box;
+	color: var(--a-bg);
+	font-size: 20px;
+	margin: 20px 0px 20px 0px;
+}
+
+#msform fieldset:not(:first-of-type) {
+	display: none;
+}
+
+#msform select {
+	padding: 15px;
+	border: 1px solid var(--a-bg);
+	border-radius: 13px;
+	margin-bottom: 10px;
+	width: 100%;
+	box-sizing: border-box;
+	color: var(--a-bg);
+	font-size: 20px;
+}
+
+#msform .action-button {
+	width: 150px;
+	background: var(--a-bg);
+	font-weight: bold;
+	color: white;
+	border: 0 none;
+	border-radius: 13px;
+	cursor: pointer;
+	padding: 10px;
+	margin: 10px 5px;
+	text-decoration: none;
+	font-size: 23px;
+}
+#msform .action-button:hover, #msform .action-button:focus {
+	box-shadow: 0 0 0 2px var(--a-bg), 0 0 0 3px var(--bg);
+}
+
+.fs-title {
+	font-size: 30px;
+	text-transform: uppercase;
+	color: var(--a-bg);
+	margin-bottom: 10px;
+}
+.fs-subtitle {
+	font-weight: normal;
+	font-size: 20px;
+	color: var(--a-bg);
+	margin-bottom: 20px;
+}
+
+#progressbar {
+	margin-bottom: 30px;
+	overflow: hidden;
+	counter-reset: step;
+}
+#progressbar li {
+	list-style-type: none;
+	color: var(--a-bg);
+	text-transform: uppercase;
+	font-size: 15px;
+	width: 33.33%;
+	float: left;
+	position: relative;
+	margin-bottom: 10px;
+}
+
+#progressbar li:before {
+	content: counter(step);
+	counter-increment: step;
+	width: 25px;
+	line-height: 25px;
+	display: block;
+	font-size: 15px;
+	color: white;
+	background: var(--a-bg);
+	border-radius: 13px;
+	margin: 0 auto 5px auto;
+}
+
+#progressbar li:after {
+	content: '';
+	width: 100%;
+	height: 2px;
+	background: var(--a-bg);
+	position: absolute;
+	left: -50%;
+	top: 9px;
+	z-index: -1; 
+}
+#progressbar li:first-child:after {
+	content: none; 
+}
+
+#progressbar li.active:before,  #progressbar li.active:after{
+	background: var(--bg);
+	color: var(--a-bg);
+}
+
+
+
+@media (max-width: 768px) {
+	#msform {
+	  width: 90%;
+	  margin: 20px auto;
+	  height: auto;
+	}
+  
+	#msform fieldset {
+	  width: 90%;
+	  margin: auto;
+	  padding: 20px;
+	  position: relative;
+	  top: 0;
+	}
+
+	#msform select {
+		font-size: 14px;
+	}
+  
+	.fs-title {
+	  font-size: 22px;
+	}
+  
+	.fs-subtitle {
+	  font-size: 16px;
+	}
+  
+	#msform .action-button {
+	  font-size: 18px;
+	  width: 100%;
+	  padding: 12px;
+	}
+  
+	#progressbar li {
+	  font-size: 12px;
+	}
+  
+	#progressbar li:before {
+	  width: 20px;
+	  line-height: 20px;
+	  font-size: 12px;
+	}
+  }
+  
