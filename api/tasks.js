@@ -90,7 +90,7 @@ tasks.get("/tarefas/form", async (req, res) => {
             const questions = results.map(row => ({
                 id: row.id,
                 enunciado: row.enunciado,
-                opcoes: row.opcoes.split('||') // Usamos separador único
+                opcoes: row.opcoes.split('||') 
             }));
             
             res.json(questions);
@@ -121,7 +121,7 @@ tasks.post("/answer/submit", async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-// Quantos auxiliares de marcha (canadianas)? 1 e 2
+
 tasks.get("/tarefas/photo", async (req, res) => {
     const photoId = req.query.photoId;
     try {
@@ -225,9 +225,7 @@ cron.schedule('* * * * *', async () => {
             } catch (emailError) {
                 console.error(`Erro ao enviar email para ${stateEmail}:`, emailError);
             }
-        } else {
-          console.log(`Paciente ${patient.id} não tem tarefas hoje.`);
-        }
+        } 
       } catch (patientError) {
         console.error(`Erro ao processar paciente ${patient.id}:`, patientError);
       }

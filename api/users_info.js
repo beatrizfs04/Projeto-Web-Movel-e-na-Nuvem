@@ -145,37 +145,4 @@ users.get("/doctor/patients", async (req, res) => {
     }
 });
 
-
-/* MÉDICO 
-
-users.get("/medico/patients", async (req, res) => {
-    const doctor = (req.query && req.query.doctor ? req.query.doctor : null);
-    if (!doctor || doctor==null) return res.status(404).json({ error: "ID do Médico Inválido." });
-    try {
-        sql.query("SELECT * FROM patient WHERE doctor = ?", [doctor], (err, results) => {
-            if (err) return res.status(500).json({ error: err.message });
-            else return res.json(results);
-        });        
-    } catch (error) {
-        return res.status(500).json({ error: error });
-    }
-});
-
-users.get("/medico/patient", async (req, res) => {
-    const doctor = (req.query && req.query.doctor ? req.query.doctor : null);
-    if (!doctor || doctor==null) return res.status(404).json({ error: "ID do Médico Inválido." });
-    const patient = (req.query && req.query.patient ? req.query.patient : null);
-    if (!patient || patient==null) return res.status(404).json({ error: "ID do Utente Inválido." });
-    try {
-        sql.query("SELECT * FROM patient WHERE doctor = ? AND id = ?", [doctor, patient], (err, results) => {
-            if (err) return res.status(500).json({ error: err.message });
-            else return res.json(results);
-        });      
-    } catch (error) {
-        return res.status(500).json({ error: error });
-    }
-});
-
-*/
-
 module.exports = users;

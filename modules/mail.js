@@ -7,7 +7,7 @@ const transporter = nodemailer.createTransport({
   secure: true,
   auth: {
     user: 'apikey',
-    pass: ''
+    pass: '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'
   }
 });
 
@@ -25,7 +25,6 @@ functions.sendStateMail = async (email, num) => {
     };
 
     await transporter.sendMail(mailOptions);
-    console.log('Email de tarefas enviado com sucesso!');
   } catch (error) {
     console.error('Erro ao enviar email:', error);
   }
@@ -44,7 +43,6 @@ functions.sendPatientMail = async (email, id, token) => {
     };
 
     await transporter.sendMail(mailOptions);
-    console.log('Email do novo utente enviado com sucesso!');
   } catch (error) {
     console.error('Erro ao enviar email:', error);
   }
