@@ -188,7 +188,7 @@ tasks.get("/tarefas/tutorial", async (req, res) => {
 
 
 
-cron.schedule('* * * * *', async () => {
+cron.schedule('0 8 * * *', async () => {
   try {    
     const today = new Date().toISOString().split('T')[0];
     
