@@ -12,7 +12,7 @@ dos procedimentos maior, conforme as necessidades distintas de cada utente.
 - Sistema de notificações via email.
 - Autentificação e controlo de acesso de páginas conforme os 3 tipos de perfil. Tendo dois tipos diferentes de autenticação: 
   - Médicos e atendentes acedem por preenchimento de credenciais.
-  - Pacientes acedem atravez de uma URL unica evida para o seu email (acesso mais fácil).
+  - Pacientes acedem atravéz de uma URL única enviada para o seu email (acesso mais fácil).
 - Preenchimento e submissão de dados.
 - Alertas de submissão ou erros.
 - Gestão diária de tarefas.
