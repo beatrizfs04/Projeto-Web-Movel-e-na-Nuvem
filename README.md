@@ -2,8 +2,7 @@
 ## O que foi feito?
 Este projeto é um sistema que facilita o acompanhamento e recolha de dados de processos de recuperação pós-cirúrgicos 
 através de tarefas diárias que recolhem informação de como o utente está a reagir ao tratamento. Esta ideia foi 
-incentivada pelo Dr. Diogo Pascoal, um médico que trabalha na área da ortopedia no Centro Hospitalar da Cova da 
-Beira.
+incentivada por um médico que trabalha na área da ortopedia no Centro Hospitalar da Cova da Beira.
 
 Existem diversos estudos que comprovam a importância do acompanhamento e da qualidade de vida do utente 
 pós-cirurgia, com isto, este acompanhamento mais próximo trará uma capacidade de reação e adaptação 
