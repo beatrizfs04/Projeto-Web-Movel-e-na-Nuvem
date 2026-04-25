@@ -12,8 +12,9 @@ dos procedimentos maior, conforme as necessidades distintas de cada utente.
 - Sistema de notificações via email.
 - Autentificação e controlo de acesso de páginas conforme os 3 tipos de perfil. Tendo dois tipos diferentes de autenticação: 
   - Médicos e atendentes acedem por preenchimento de credenciais.
-  - Pacientes acedem atravéz de uma URL única enviada para o seu email (acesso mais fácil).
-- Preenchimento e submissão de dados.
+  - Pacientes acedem através de uma URL única enviada para o seu email (acesso mais fácil).
+- Preenchimento e submissão de dados (formulário).
+- Captura e armazenamento de fotos.
 - Alertas de submissão ou erros.
 - Gestão diária de tarefas.
 - Possibilidade de terminar a sessão na aplicação.
@@ -31,7 +32,7 @@ Este projeto foi realizado por mim, aluna da Lincenciatura de Informática Web, 
 - Framework - Node JS
 - Linguagens - JavaScript, HTML, CSS, SQL
 - Bibliotecas - express.js, bcrypt, cookie-parser, NodeMailer, MySQL Pool, JSON Web Token
-- Programas – HeidiSQL (SGBD)
+- Programas – HeidiSQL (SGBD), Visual Studio Code
 
 ## Como inicializar o projeto?
 Correr ```node index.js``` no terminal dentro do diretório.
