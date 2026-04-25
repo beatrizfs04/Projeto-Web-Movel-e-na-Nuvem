@@ -10,7 +10,7 @@ dos procedimentos maior, conforme as necessidades distintas de cada utente.
 
 ### Funcionalidades:
 - Sistema de notificações via email.
-- Autentificação e controlo de acesso de páginas conforme o perfil.
+- Autentificação e controlo de acesso de páginas conforme os 3 tipos de perfil.
 - Preenchimento e submissão de dados.
 - Alertas de submissão ou erros.
 - Gestão diária de tarefas.
