@@ -14,6 +14,7 @@ dos procedimentos maior, conforme as necessidades distintas de cada utente.
 - Autentificação e controlo de acesso de páginas conforme o perfil.
 - Preenchimento e submissão de dados.
 - Alertas de submissão ou erros.
+- Gestão diária de tarefas.
 - Possibilidade de terminar a sessão na aplicação.
 - Segurança de dados: Encriptação de password e caminhos de imagens em base 64.
 - Interface adaptada para todos os tipos de ecrãs.
